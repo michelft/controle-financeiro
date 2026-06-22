@@ -50,7 +50,7 @@ svg{display:block;}
 .bottomnav{display:none;}
 @media(max-width:759px){
   .sidebar{display:none;}
-  main{padding:20px 16px calc(80px + env(safe-area-inset-bottom));}
+  main{padding:calc(20px + env(safe-area-inset-top)) 16px calc(80px + env(safe-area-inset-bottom));}
   .bottomnav{display:flex;position:fixed;left:0;right:0;bottom:0;height:calc(64px + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);background:var(--bg1);border-top:1px solid var(--bd2);z-index:40;}
   .bnbtn{flex:1;background:none;border:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:var(--tx2);font-size:11px;font-weight:510;}
   .bnbtn.on{color:var(--indigoL);}
@@ -60,7 +60,7 @@ svg{display:block;}
 .list-group{margin-bottom:28px;}
 .list-group-label{display:flex;align-items:center;gap:10px;font-size:11px;font-weight:590;letter-spacing:.08em;text-transform:uppercase;color:var(--tx3);margin-bottom:10px;padding:0 2px;}
 .list-group-label::after{content:'';flex:1;height:1px;background:var(--bd1);}
-.lrow{display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--bg1);border:1px solid var(--bd1);border-radius:12px;margin-bottom:8px;cursor:grab;user-select:none;-webkit-user-select:none;touch-action:none;}
+.lrow{display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--bg1);border:1px solid var(--bd1);border-radius:12px;margin-bottom:8px;user-select:none;-webkit-user-select:none;}
 .lrow:last-child{margin-bottom:0;}
 .lrow.dragging{opacity:.3;border:1.5px dashed var(--indigo);}
 .lrow.drag-over{border-color:var(--indigo);background:rgba(94,106,210,.07);}
@@ -71,7 +71,8 @@ svg{display:block;}
 .lrow-val{font-size:16px;font-weight:590;font-variant-numeric:tabular-nums;white-space:nowrap;flex-shrink:0;}
 .lrow-actions{display:flex;gap:2px;opacity:0;transition:opacity .15s;flex-shrink:0;}
 .lrow:hover .lrow-actions,.lrow:focus-within .lrow-actions{opacity:1;}
-.drag-handle{color:var(--tx3);cursor:grab;flex-shrink:0;display:flex;align-items:center;}
+.drag-handle{color:var(--tx3);cursor:grab;flex-shrink:0;display:flex;align-items:center;justify-content:center;touch-action:none;padding:6px;margin:-6px 0 -6px -4px;border-radius:6px;}
+.drag-handle:active{background:rgba(255,255,255,0.05);cursor:grabbing;}
 @media(max-width:759px){
   .lrow{gap:10px;padding:11px 12px;flex-wrap:wrap;}
   .drag-handle{order:1;}
@@ -310,11 +311,8 @@ function listView(tipo){
       ondragover="dragOver(event)"
       ondragleave="dragLeave(event)"
       ondrop="dragDrop(event,'${it.id}')"
-      ondragend="dragEnd(event)"
-      ontouchstart="touchStart(event,'${it.id}')"
-      ontouchmove="touchMove(event)"
-      ontouchend="touchEnd(event,'${it.id}')">
-      <span class="drag-handle">${ic('grip',16,1.5)}</span>
+      ondragend="dragEnd(event)">
+      <span class="drag-handle" ontouchstart="touchStart(event,'${it.id}')" ontouchmove="touchMove(event)" ontouchend="touchEnd(event,'${it.id}')">${ic('grip',18,1.5)}</span>
       <button class="chk ${it.pago?'on':''}" onclick="togglePago('${it.id}')" style="flex-shrink:0">${it.pago?'<svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M2.5 6.2l2.2 2.2L9.5 3.5" stroke="#08090a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>':''}</button>
       <div class="lrow-main">
         <div class="lrow-name">${esc(it.descricao)||'sem nome'}</div>
@@ -424,11 +422,13 @@ function dragDrop(e,targetId){
 // touch drag (mobile)
 function touchStart(e,id){
   if(e.touches.length>1)return;
+  const src=e.currentTarget.closest('.lrow');
+  if(!src)return;
+  e.preventDefault();
   dragId=id; touchY=e.touches[0].clientY;
-  const src=e.currentTarget;
   touchClone=src.cloneNode(true);
   const r=src.getBoundingClientRect();
-  touchClone.style.cssText=`position:fixed;top:${r.top}px;left:${r.left}px;width:${r.width}px;opacity:.85;pointer-events:none;z-index:999;border:1.5px solid var(--indigo);box-shadow:0 8px 32px rgba(0,0,0,.4);border-radius:12px;`;
+  touchClone.style.cssText=`position:fixed;top:${r.top}px;left:${r.left}px;width:${r.width}px;opacity:.9;pointer-events:none;z-index:999;border:1.5px solid var(--indigo);box-shadow:0 8px 32px rgba(0,0,0,.4);border-radius:12px;`;
   document.body.appendChild(touchClone);
   src.classList.add('dragging');
 }
